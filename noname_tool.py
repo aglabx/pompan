@@ -13,7 +13,7 @@ def main(input_file, output_file):
   with open(input_file) as fh:
       pass
     
-  with open(output_file, 'w') as fh:
+  with open(output_file, 'w') as fw:
     pass
   
 
