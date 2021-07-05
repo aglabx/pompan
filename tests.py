@@ -241,16 +241,15 @@ class TestNonameToolMethods(unittest.TestCase):
         
     def test_get_orfs(self):
         result = get_ORFs(GENOME)
-        self.assertEqual(len(result['ORFs']), 8)
+        self.assertEqual(len(result['ORFs']), 9)
         self.assertEqual(result['ORFs'][0], (108, 1685))
         self.assertEqual(result['ORFs'][1], (1807, 3330))
         self.assertEqual(result['ORFs'][2], (1807, 2499))
         self.assertEqual(result['ORFs'][3], (2499, 2705))
         self.assertEqual(result['ORFs'][4], (1829, 2389))
         self.assertEqual(result['ORFs'][5], (3438, 4445))
-        self.assertEqual(result['ORFs'][6], (4876, 7247))
-        self.assertEqual(result['ORFs'][7], (5458, 7110))
-        self.assertEqual(result['ORFs'][8], (7271, 9124))
+        self.assertEqual(result['ORFs'][6], (5458, 7110))
+        self.assertEqual(result['ORFs'][7], (7271, 9124))
         self.assertEqual(result['ORFs'][8], (9234, 15785))
         
 if __name__ == '__main__':
