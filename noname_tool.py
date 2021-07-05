@@ -8,10 +8,26 @@
 import argparse
 
 
+def count_GGG_triplets(sequence):
+    '''Count GGG triplets in given sequence.
+    
+    Parameters:
+    sequence (string): DNA sequence
+
+    Returns:
+    int: A number of GGG triplets
+    '''
+    return sequence.count('GGG')
+
+
 def main(input_file, output_file):
   
     with open(input_file) as fh:
         pass
+    
+    for sequence in sequences:
+      results = {}
+      results['ggg_counts'] = count_GGG_triplets(sequence)
     
     with open(output_file, 'w') as fw:
         pass
