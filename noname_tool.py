@@ -10,11 +10,11 @@ import argparse
 
 def main(input_file, output_file):
   
-  with open(input_file) as fh:
-      pass
+    with open(input_file) as fh:
+        pass
     
-  with open(output_file, 'w') as fw:
-    pass
+    with open(output_file, 'w') as fw:
+        pass
   
 
 if __name__ == '__main__':
