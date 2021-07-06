@@ -73,17 +73,37 @@ def nucleotide_frequency(fasta_dictionary):
     """
     pass
 
-
 def kmer_frequency(fasta_dictionary, k):
     """
     Args:
         fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
         k: length of k-mer sequence
-
     Returns:
         dictionary with k-mer frequency, key == k-mer (sequence), value == frequency
     """
-    pass
+    k_mers = {}
+    for heading in fasta_dictionary.keys():
+        sequence = fasta_dictionary[heading]
+        stop = k
+        for start in range(len(sequence)):
+            if stop <= len(sequence):
+                k_mer = sequence[start:stop]
+                stop += 1
+                if k_mer not in k_mers.keys():
+                    k_mers[k_mer] = 1
+                else:
+                    k_mers[k_mer] += 1
+
+    original_count = 0
+    repetitive_count = 0
+    for count in k_mers.values():
+        if count == 1:
+            original_count += 1
+        else:
+            repetitive_count += 1
+
+    return k_mers
+
 
 
 def orf_finder(fasta_dictionary):
