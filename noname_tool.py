@@ -7,11 +7,11 @@
 
 import argparse
 import re
+import os
 import numpy as np
 import fastaparser
 import pprint
 from Bio import Seq, SeqUtils, SeqIO
-
 
 
 def count_GGG_triplets(sequence):
@@ -93,7 +93,7 @@ def genome_gc(fasta_dictionary):
     for fasta in fasta_dictionary.values():
         total_CG += fasta.count('C') + fasta.count('G')
         total_len += len(fasta)
-    return [round(total_CG / total_len * 100, 1)]
+    return round(total_CG / total_len * 100, 1)
 
 
 def nucleotide_frequency(fasta_dictionary):
@@ -126,7 +126,7 @@ def kmer_frequency(fasta_dictionary, k):
     k_mers = {}
     for heading in fasta_dictionary.keys():
         sequence = fasta_dictionary[heading]
-        stop = k
+        stop = int(k)
         for start in range(len(sequence)):
             if stop <= len(sequence):
                 k_mer = sequence[start:stop]
@@ -135,7 +135,24 @@ def kmer_frequency(fasta_dictionary, k):
                     k_mers[k_mer] = 1
                 else:
                     k_mers[k_mer] += 1
+
     return k_mers
+
+
+def unique_k_mers(k_mers_dict):
+    uniq_count = 0
+    for k_mer in k_mers_dict.keys():
+        if k_mers_dict[k_mer] == 1:
+            uniq_count += 1
+    return uniq_count
+
+
+def repetitive_k_mers(k_mers_dict):
+    rep_count = 0
+    for k_mer in k_mers_dict.keys():
+        if k_mers_dict[k_mer] != 1:
+            rep_count += 1
+    return rep_count
 
 
 def orf_finder(fasta_dictionary):
@@ -218,29 +235,36 @@ def aminoacid_frequency(fasta_dictionary):
     return aminas_answer
 
 
-def main(input_files, output_file):
+def main(input_files, output_file, k):
+    with open(output_file, 'w') as fw:
+        fw.write("%s\n" % "\t".join(["Genome", "N50", "Genome length", "Genome GC (%)",
+                                     f"Unique k-mers_{k}", f"Repetitive k-mers {k}"]))
+        for file in input_files:
+            # считаем все статистики по файлам
+            # результат записываем в словарь, например results["N50"] = genome_N50
+            genome_name = os.path.basename(file)
+            fasta_dictionary = fasta_reader(file)
+            N50 = genome_N50(file)
+            length = genome_length(file)
+            gc = genome_gc(fasta_dictionary)
+            k_mers = kmer_frequency(fasta_dictionary, k)
+            k_mers_unique= unique_k_mers(k_mers)
+            k_mers_rep = repetitive_k_mers(k_mers)
 
-
-    for file in input_files:
-        # считаем все статистики по файлам
-        # результат записываем в словарь, например results["N50"] = genome_N50
-        results = {}
-        pass
-
-        #потом записываем резульатат в файл
-        with open(output_file, 'w') as fw:
-            #
-            pass
+            results = [genome_name, str(N50), str(length), str(gc), str(k_mers_unique), str(k_mers_rep)]
+            fw.write("%s\n" % "\t".join(results))
 
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Super noname tool!')
     parser.add_argument('-f','--fasta', help='path to input file(s) in fasta format', nargs="+", required=True)
+    parser.add_argument('-k', '--kmer', help='length of k for k-mers statistics', required=True)
     parser.add_argument('-o','--output', help='path to output file', required=True)
     args = vars(parser.parse_args())
 
     input_files = args["fasta"]
     output_file = args["output"]
+    k = args["kmer"]
 
-    main(input_files, output_file)
+    main(input_files, output_file, k)
