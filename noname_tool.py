@@ -6,6 +6,12 @@
 #@contact: support@noname_tool.com
 
 import argparse
+import re
+import numpy as np
+import fastaparser
+import pprint
+from Bio import Seq, SeqUtils, SeqIO
+
 
 
 def count_GGG_triplets(sequence):
@@ -19,6 +25,7 @@ def count_GGG_triplets(sequence):
     '''
     return sequence.count('GGG')
 
+
 def fasta_reader(fasta_file):
     """
     Args:
@@ -27,10 +34,15 @@ def fasta_reader(fasta_file):
     Returns:
          dictionary with key == fasta header, value == sequence
     """
-    pass
+    with open(fasta_file) as fh:
+        parser = fastaparser.Reader(fh, parse_method='quick')
+        seq_dict = {}
+        for seq in parser:
+            seq_dict[seq.header] = seq.sequence
+    return seq_dict
 
 
-def genome_N50(fasta_dictionary):
+def genome_N50(fasta_file):
     """
     Args:
         fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
@@ -38,10 +50,22 @@ def genome_N50(fasta_dictionary):
     Returns:
         N50 characteristics of genome
     """
-    pass
+    SeqLen = []
+    with open(fasta_file) as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            SeqLen.append(len(record.seq))
+    ReverseLen = sorted(SeqLen, reverse=True)
+    csum = np.cumsum(ReverseLen)
+    MedianCsum = csum[-1] // 2
+    csum2 = min(csum[csum >= MedianCsum])
+    for index, item in enumerate(csum):
+        if item == csum2:
+            indexN50 = index
+            N50 = ReverseLen[indexN50]
+    return N50
 
 
-def genome_length(fasta_dictionary):
+def genome_length(fasta_file):
     """
     Args:
         fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
@@ -49,7 +73,11 @@ def genome_length(fasta_dictionary):
     Returns:
         genome_length
     """
-    pass
+    SeqLen = []
+    with open(fasta_file) as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            SeqLen.append(len(record.seq))
+    return int(sum(SeqLen))
 
 
 def genome_gc(fasta_dictionary):
@@ -60,7 +88,12 @@ def genome_gc(fasta_dictionary):
     Returns:
         genome gc content (%)
     """
-    pass
+    total_CG = 0
+    total_len = 0
+    for fasta in fasta_dictionary.values():
+        total_CG += fasta.count('C') + fasta.count('G')
+        total_len += len(fasta)
+    return [round(total_CG / total_len * 100, 1)]
 
 
 def nucleotide_frequency(fasta_dictionary):
@@ -71,7 +104,14 @@ def nucleotide_frequency(fasta_dictionary):
     Returns:
         dictionary with frequency of each nucleotide, key == k-mer (sequence), value == frequency
     """
-    pass
+    A, T, C, G, N = 0, 0, 0, 0, 0
+    for fasta in fasta_dictionary.values():
+        A += fasta.count('A')
+        T += fasta.count('T')
+        C += fasta.count('C')
+        G += fasta.count('G')
+        N += fasta.count('N')
+    return {'A': A, 'T': T, 'C': C, 'G': G, 'N': N}
 
 
 def kmer_frequency(fasta_dictionary, k):
@@ -83,7 +123,19 @@ def kmer_frequency(fasta_dictionary, k):
     Returns:
         dictionary with k-mer frequency, key == k-mer (sequence), value == frequency
     """
-    pass
+    k_mers = {}
+    for heading in fasta_dictionary.keys():
+        sequence = fasta_dictionary[heading]
+        stop = k
+        for start in range(len(sequence)):
+            if stop <= len(sequence):
+                k_mer = sequence[start:stop]
+                stop += 1
+                if k_mer not in k_mers.keys():
+                    k_mers[k_mer] = 1
+                else:
+                    k_mers[k_mer] += 1
+    return k_mers
 
 
 def orf_finder(fasta_dictionary):
@@ -105,7 +157,14 @@ def codon_frequency(fasta_dictionary):
     Returns:
         dictionary with key == codon (e.g. "ATG"), value == frequency of codone
     """
-    pass
+    dict_codons = {}
+    for header, seq in fasta_dictionary.items():
+        for i in range(0, len(seq) - 3, 3):
+            if seq[i:i + 3] not in dict_codons.keys():
+                dict_codons[seq[i:i + 3]] = 1
+            else:
+                dict_codons[seq[i:i + 3]] += 1
+        return dict_codons
 
 
 def aminoacid_frequency(fasta_dictionary):
@@ -116,27 +175,72 @@ def aminoacid_frequency(fasta_dictionary):
     Returns:
         dictionary with key == aminoacid (e.g. "M"), value == frequency of aminoacid
     """
-    pass
+    protein = {"TTT": "F", "CTT": "L", "ATT": "I", "GTT": "V",
+               "TTC": "F", "CTC": "L", "ATC": "I", "GTC": "V",
+               "TTA": "L", "CTA": "L", "ATA": "I", "GTA": "V",
+               "TTG": "L", "CTG": "L", "ATG": "M", "GTG": "V",
+               "TCT": "S", "CCT": "P", "ACT": "T", "GCT": "A",
+               "TCC": "S", "CCC": "P", "ACC": "T", "GCC": "A",
+               "TCA": "S", "CCA": "P", "ACA": "T", "GCA": "A",
+               "TCG": "S", "CCG": "P", "ACG": "T", "GCG": "A",
+               "TAT": "Y", "CAT": "H", "AAT": "N", "GAT": "D",
+               "TAC": "Y", "CAC": "H", "AAC": "N", "GAC": "D",
+               "TAA": "STOP", "CAA": "Q", "AAA": "K", "GAA": "E",
+               "TAG": "STOP", "CAG": "Q", "AAG": "K", "GAG": "E",
+               "TGT": "C", "CGT": "R", "AGT": "S", "GGT": "G",
+               "TGC": "C", "CGC": "R", "AGC": "S", "GGC": "G",
+               "TGA": "STOP", "CGA": "R", "AGA": "R", "GGA": "G",
+               "TGG": "W", "CGG": "R", "AGG": "R", "GGG": "G"
+               }
+
+    def translate(seq, protein):
+        trans_seq = ''
+        for i in range(0, len(seq) - 3, 3):
+            trans_seq += protein[seq[i: i + 3]]
+        return trans_seq
+
+    def count_aminas(trans_seq, list_aminas):
+        aminas = {}
+        for amina in list_aminas:
+            aminas[amina] = trans_seq.count(amina)
+        return aminas
+
+    aminas_answer = {}
+    list_aminas = np.unique(list(protein.values()))
+    for header, seq in fasta_dictionary.items():
+        trans_seq = translate(seq, protein)
+        aminas = count_aminas(trans_seq, list_aminas)
+        if aminas_answer == {}:
+            aminas_answer = aminas
+        else:
+            for k, v in aminas_answer.items():
+                aminas_answer[k] += aminas[k]
+    return aminas_answer
 
 
-def main(input_file, output_file):
-  
-    with open(input_file) as fh:
+def main(input_files, output_file):
+
+
+    for file in input_files:
+        # считаем все статистики по файлам
+        # результат записываем в словарь, например results["N50"] = genome_N50
+        results = {}
         pass
-    
-    for sequence in sequences:
-      results = {}
-      results['ggg_counts'] = count_GGG_triplets(sequence)
-    
-    with open(output_file, 'w') as fw:
-        pass
-  
+
+        #потом записываем резульатат в файл
+        with open(output_file, 'w') as fw:
+            #
+            pass
+
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Super noname tool!')
-    parser.add_argument('-i','--input', help='Input file', required=True)
-    parser.add_argument('-o','--output', help='Output file', required=True)
+    parser.add_argument('-f','--fasta', help='path to input file(s) in fasta format', nargs="+", required=True)
+    parser.add_argument('-o','--output', help='path to output file', required=True)
     args = vars(parser.parse_args())
-    
-    main(input_file, output_file)
+
+    input_files = args["fasta"]
+    output_file = args["output"]
+
+    main(input_files, output_file)
