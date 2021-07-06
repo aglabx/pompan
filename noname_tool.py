@@ -19,6 +19,105 @@ def count_GGG_triplets(sequence):
     '''
     return sequence.count('GGG')
 
+def fasta_reader(fasta_file):
+    """
+    Args:
+        fasta_file: path to genome in fasta format
+
+    Returns:
+         dictionary with key == fasta header, value == sequence
+    """
+    pass
+
+
+def genome_N50(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        N50 characteristics of genome
+    """
+    pass
+
+
+def genome_length(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        genome_length
+    """
+    pass
+
+
+def genome_gc(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        genome gc content (%)
+    """
+    pass
+
+
+def nucleotide_frequency(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        dictionary with frequency of each nucleotide, key == k-mer (sequence), value == frequency
+    """
+    pass
+
+
+def kmer_frequency(fasta_dictionary, k):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+        k: length of k-mer sequence
+
+    Returns:
+        dictionary with k-mer frequency, key == k-mer (sequence), value == frequency
+    """
+    pass
+
+
+def orf_finder(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        dictionary with key == number of ORF, value == array with positions of start and stop codon
+    """
+    pass
+
+
+def codon_frequency(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        dictionary with key == codon (e.g. "ATG"), value == frequency of codone
+    """
+    pass
+
+
+def aminoacid_frequency(fasta_dictionary):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+
+    Returns:
+        dictionary with key == aminoacid (e.g. "M"), value == frequency of aminoacid
+    """
+    pass
+
 
 def main(input_file, output_file):
   
