@@ -29,27 +29,34 @@ def fasta_reader(fasta_file):
     """
     pass
 
-
-def genome_N50(fasta_dictionary):
-    """
-    Args:
-        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
-
-    Returns:
-        N50 characteristics of genome
-    """
-    pass
+from Bio import SeqIO
+from pprint import pprint 
+import numpy as np
 
 
-def genome_length(fasta_dictionary):
-    """
-    Args:
-        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+def N50_genome(fasta):
+    SeqLen = []
+    with open(fasta) as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            SeqLen.append(len(record.seq))
+    ReverseLen=sorted(SeqLen, reverse=True)
+    csum=np.cumsum(ReverseLen)
+    MedianCsum = csum[-1]//2
+    csum2=min(csum[csum >= MedianCsum])
+    for index, item in enumerate(csum):
+        if item == csum2:
+            indexN50 = index 
+            N50 = ReverseLen[indexN50]
+    return("N50 of the sequence: %s" % N50)
 
-    Returns:
-        genome_length
-    """
-    pass
+
+def genome_lenght(fasta):
+    SeqLen = []
+    with open(fasta) as handle:
+        for record in SeqIO.parse(handle, "fasta"):
+            SeqLen.append(len(record.seq))
+    return("The lenght of sequence is: %d" % int(sum(SeqLen)))
+   
 
 
 def genome_gc(fasta_dictionary):
