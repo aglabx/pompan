@@ -130,6 +130,45 @@ def main(input_file, output_file):
     
     with open(output_file, 'w') as fw:
         pass
+
+import os
+import csv 
+def write_in_file(parser, cmers, ORF1, ORF2, codons, amino):  
+    parser = {}
+    GC_amount = {}
+    n50 = {}
+    cmers = {}
+    ORF1 = {}
+    ORF2 = {}
+    codons = {}
+    amino = {}
+
+    dicts = parser, GC_amount, n50, cmers, ORF1, ORF2, codons, amino
+    
+    with open('wril.csv', 'w') as file:
+        writer = csv.writer(ofile, delimiter='\t')
+        for key in parser.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in GC_amount.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in n50.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in cmers.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in ORF1.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in ORF2.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in codons.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        for key in amino.iterkeys():
+            writer.writerow([key] + [d[key] for d in dicts])
+        writer.writerow(['parser', 'GC_amount', 'n50', 'cmers', 'ORF1', 'ORF2', 'codons', 'amino'])
+        file.close() 
+         
+         
+
+            
   
 
 if __name__ == '__main__':
