@@ -73,11 +73,17 @@ def nucleotide_frequency(fasta_dictionary):
     """
     pass
 
-
-def k_mer_counter(dna_seqs, k):
+def kmer_frequency(fasta_dictionary, k):
+    """
+    Args:
+        fasta_dictionary: dictionary with key == fasta header, value == sequence (fasta_reader function)
+        k: length of k-mer sequence
+    Returns:
+        dictionary with k-mer frequency, key == k-mer (sequence), value == frequency
+    """
     k_mers = {}
-    for heading in dna_seqs.keys():
-        sequence = dna_seqs[heading]
+    for heading in fasta_dictionary.keys():
+        sequence = fasta_dictionary[heading]
         stop = k
         for start in range(len(sequence)):
             if stop <= len(sequence):
