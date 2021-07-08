@@ -1,0 +1,9 @@
+import fastaparser
+
+def fasta_reader(fasta_file_path):
+    with open(fasta_file_path) as fasta_file:
+            parser = fastaparser.Reader(fasta_file, parse_method='quick')
+            seq_dict = {}
+            for seq in parser:
+                seq_dict[seq.header] = seq.sequence
+    return(seq_dict)
